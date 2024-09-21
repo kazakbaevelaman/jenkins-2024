@@ -36,21 +36,35 @@ podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template ) {
             """
             }
 
-    if(params.action == "apply"){
-        stage ("Apply") {
+          if (params.action == "apply") {
+            stage ("Apply") {
             sh """cd terraform
             terraform apply -auto-approve
             """
             }
-        }
-
-    else {
-        stage ("Destroy") {
+          } else if (params.action == "destroy") {
+            stage ("Destroy") {
             sh """cd terraform
             terraform destroy -auto-approve
             """
             }
-        }
+          }
+
+    // if(params.action == "apply"){
+    //     stage ("Apply") {
+    //         sh """cd terraform
+    //         terraform apply -auto-approve
+    //         """
+    //         }
+    //     }
+
+    // else {
+    //     stage ("Destroy") {
+    //         sh """cd terraform
+    //         terraform destroy -auto-approve
+    //         """
+    //         }
+    //     }
       
         }
     }
