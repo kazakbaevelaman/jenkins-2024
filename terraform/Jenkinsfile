@@ -15,7 +15,7 @@ spec:
 '''
 properties([
     parameters([
-        choice(choices: ['apply ', 'destroy '], description: 'Please select action', name: 'action')
+        choice(choices: ['apply ', 'destroy'], description: 'Please select action', name: 'action')
         ])
     ])
 
