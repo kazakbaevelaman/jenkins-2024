@@ -12,48 +12,47 @@ spec:
     command:
     - sleep
     - "3600"
-'''
+    '''
 
 properties([
-  parameters([
-    choice(choices: ['apply', 'destroy'], description: 'Please select action ', name: 'choice')
-                       ])
-           ])
+    parameters([
+        choice(choices: ['apply', 'destroy'], description: 'Provide your choice', name: 'action')
+        ])
+        ])
 
-podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template ) {
-        node ("terraform") {
+podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template) {
+    node ("terraform") {
         container("terraform") {
-        stage ("Pull code") {
+    stage ("Pull code") {
         git branch: 'main', url: 'https://github.com/kazakbaevelaman/jenkins-2024.git'
-        }
-   
-        withCredentials([usernamePassword(credentialsId: 'aws-creds', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+    }
+    withCredentials([usernamePassword(credentialsId: 'aws-creds', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
         stage ("Init") {
-            sh """ 
-            cd terraform 
-            terraform init 
-            """
-            }
-
-          if (params.choice == "apply") {
-            stage ("Apply") {
-            sh """cd terraform
-            terraform apply -auto-approve
-            """
-              }
-            }
-            
-          else {
-            stage ("Destroy") {
-            sh """cd terraform
-            terraform destroy -auto-approve
-            """
-            }
-          }
+        sh """
+        cd terraform
+        terraform init
+        """
+    }
       
+    if(params.action == "apply") {
+        stage ("Apply") {
+        sh """
+        cd terraform
+        terraform apply -auto-approve
+        """
+      }
+    }
+    
+    else {
+        stage ("Destroy") {
+        sh """
+        cd terraform
+        terraform destroy -auto-approve
+        """
+          }
         }
+      }
+
     }
   }
 }
-
-
