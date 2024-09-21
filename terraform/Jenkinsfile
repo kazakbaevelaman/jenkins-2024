@@ -13,11 +13,12 @@ spec:
     - sleep
     - "3600"
 '''
+
 properties([
-    parameters([
-        choice(choices: ['apply ', 'destroy'], description: 'Please select action', name: 'action')
-        ])
-    ])
+  parameters([
+    choice(choices: ['apply', 'destroy'], description: 'Please select action ', name: 'choice')
+                       ])
+           ])
 
 podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template ) {
         node ("terraform") {
@@ -26,8 +27,6 @@ podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template ) {
         git branch: 'main', url: 'https://github.com/kazakbaevelaman/jenkins-2024.git'
         }
    
-
-        
         withCredentials([usernamePassword(credentialsId: 'aws-creds', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
         stage ("Init") {
             sh """ 
@@ -36,35 +35,21 @@ podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template ) {
             """
             }
 
-          if (params.action == "apply") {
+          if (params.choice == "apply") {
             stage ("Apply") {
             sh """cd terraform
             terraform apply -auto-approve
             """
+              }
             }
-          } else if (params.action == "destroy") {
+            
+          else {
             stage ("Destroy") {
             sh """cd terraform
             terraform destroy -auto-approve
             """
             }
           }
-
-    // if(params.action == "apply"){
-    //     stage ("Apply") {
-    //         sh """cd terraform
-    //         terraform apply -auto-approve
-    //         """
-    //         }
-    //     }
-
-    // else {
-    //     stage ("Destroy") {
-    //         sh """cd terraform
-    //         terraform destroy -auto-approve
-    //         """
-    //         }
-    //     }
       
         }
     }
