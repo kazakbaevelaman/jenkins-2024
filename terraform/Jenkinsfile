@@ -16,9 +16,12 @@ spec:
 
 properties([
     parameters([
-        choice(choices: ['apply', 'destroy'], description: 'Provide your choice', name: 'action')
-        ])
-        ])
+        choice(choices: ['apply', 'destroy'], description: 'Provide your choice', name: 'action'),
+        string(name: 'AMI_ID', defaultValue: '', description: 'Please provide AMI ID'),
+        choice(name: 'REGION', choices: ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2'], description: 'Select AWS Region')
+    ])
+])
+
 
 podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template) {
     node ("terraform") {
@@ -32,13 +35,18 @@ podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template) {
         cd terraform
         terraform init
         """
-    }
+        def tfvarsContent = """
+ami_id = "${params.AMI_ID}"
+region = "${params.REGION}"
+        """
+        writeFile file: 'terraform/terraform.tfvars', text: tfvarsContent
+}
       
     if(params.action == "apply") {
         stage ("Apply") {
         sh """
         cd terraform
-        terraform apply -auto-approve
+        terraform apply -var-file=terraform.tfvars -auto-approve
         """
       }
     }
@@ -47,7 +55,7 @@ podTemplate(cloud: 'kubernetes', label: 'terraform', yaml: template) {
         stage ("Destroy") {
         sh """
         cd terraform
-        terraform destroy -auto-approve
+        terraform destroy -var-file=terraform.tfvars -auto-approve
         """
           }
         }
