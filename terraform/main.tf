@@ -7,5 +7,5 @@ resource "aws_instance" "web" {
 ami = var.ami_id
 instance_type = "t2.micro"
 // availability_zone = "us-east-2a"
-key_name = "key2"
+// key_name = "key2"
 }
